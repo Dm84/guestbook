@@ -7,21 +7,23 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt|error)|css|images|js)/
             security: false
-        default:
-            anonymous: ~
+            
+#        default:
+#            anonymous: ~
         
         secured_area:
             anonymous: ~
             oauth:
                 resource_owners:
-                    facebook:           "/login/check-facebook"
+                    facebook: "/login/check-facebook"
 
-                login_path:        /login
-                use_forward:       false
-                failure_path:      /login
+                login_path: /login
+                failure_path: /login
 
                 oauth_user_provider:
-                    service: hwi_oauth.user.provider
+                    service: app_oauth_user_provider
 
     access_control:
-        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY } 
+        - { path: ^/connect, roles: IS_AUTHENTICATED_ANONYMOUSLY }    
+        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/, roles: ROLE_USER } 

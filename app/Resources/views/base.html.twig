@@ -1,13 +1,30 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="UTF-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title %}Welcome!{% endblock %}</title>
-        {% block stylesheets %}{% endblock %}
+        
+        {% block stylesheets  %}
+            <link href="/bundles/app/css/bootstrap.css" rel="stylesheet" />       
+        {% endblock %}
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
     </head>
-    <body>
-        {% block body %}{% endblock %}
-        {% block javascripts %}{% endblock %}
+    <body>      
+        
+        <div class="container">            
+            {% block navbar %}{% endblock %}
+
+            
+            <div class="row">
+                <div id="content">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+
+        </div>
+
+        {% block javascripts %}
+        {% endblock %}                    
     </body>
 </html>

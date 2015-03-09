@@ -6,4 +6,4 @@ parameters:
 services:
     app_oauth_user_provider:
         class: AppBundle\Model\AppUserProvider
-#        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
+        arguments: [@doctrine]

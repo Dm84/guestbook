@@ -1,0 +1,214 @@
+{% extends 'base.html.twig' %}
+
+{% block javascripts %}
+    <script src="{{ js_path }}/jquery.js" type="text/javascript"></script>
+    <script src="{{ js_path }}/bootstrap.js" type="text/javascript"></script>    
+    <script type="text/javascript" src="{{ js_path }}/jquery.form.js"></script>
+    <script type="text/javascript" src="{{ js_path }}/jquery.validate.js"></script>
+    <script type="text/javascript">
+        
+        $(function () {
+            var shared_settings = {             
+                
+                errorPlacement: function(error, element) {
+                    error.insertBefore(element);
+                },
+                
+                highlight: function(element, errorClass) {
+                     
+                    $(element).parent().addClass('has-error');
+                },
+                
+                unhighlight: function(element, errorClass) {
+                     
+                    $(element).parent().removeClass('has-error');
+                },              
+                
+                errorClass: 'control-label'
+            };
+            
+            var handleSuccess = function (data) {
+                handleMessages(data.messages);
+                if (typeof data.response !== 'undefined') 
+                {                   
+                    $('#navbar-login').removeClass('hidden').append(data.response.login);
+                    $('#content').html(data.response.html);
+                }   
+                
+            };
+            
+            var submitHandler = function(form) {
+                    
+                loaderIn();
+
+                $(form).ajaxSubmit({
+
+                    dataType: 'json',
+                    success: function(data) {
+                        handleSuccess(data);
+                    },
+                    complete: function () { loaderOut(); }
+                 });
+            };
+
+            $('#signin').validate($.extend({
+
+                rules: {
+                    
+                    login: {
+                        required: true
+                    },
+                    password: {
+                        required: true
+                    }                   
+                },
+
+                messages: {
+                    
+                    login: {
+                        required: '<?php echo $lang->FieldRequired()?>'
+                    },
+                    password: {
+                        required: '<?php echo $lang->FieldRequired()?>'
+                    }
+                    
+                },
+                    
+                submitHandler: submitHandler
+                    
+                
+            }, shared_settings));
+
+            var res = $('#signup').validate($.extend({
+                
+                onkeyup: function (element, event) { 
+                    if ($(element).hasClass('onkeyup')) $(element).valid();
+                    else if ($(element).attr('id') === 'password' && $('#password-confirm').val() !== '') 
+                        $('#password-confirm').valid();
+                },
+                
+                messages: {
+                    
+                    password: {
+                        minlength: '<?php echo $lang->PasswordLengthRequirement() ?> 5',
+                        required: '<?php echo $lang->FieldRequired()?>'
+                    },
+                    
+                    password_confirm: {
+                        equalTo: '<?php echo $lang->PasswordConfirmRequirement()?>'
+                    },
+                    
+                    login: {
+                        required: '<?php echo $lang->FieldRequired()?>'
+                    }
+                },
+                
+                rules: {
+
+                    login: {
+                        required: true
+                    },
+
+                    password: {
+                        required: true,                                 
+                        minlength: 1
+                    },
+                    password_confirm: {                     
+                        equalTo: '#password'
+                    }
+                },
+                
+                submitHandler: submitHandler
+
+            }, shared_settings)); 
+  
+        });
+        
+    </script>        
+{% endblock %}
+
+{% block content %}
+<div class="col-lg-6">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h1 class="h1">
+                Авторизация
+            </h1>
+        </div>
+        <div class="panel-body">
+            <form id="signin" class="form" role="form" method="post" action="{{ signin_url }}">
+                <div class="form-group">
+                    <input 
+                        type="text" 
+                        class="form-control" 
+                        value="{{ login }}" 
+                        name="login" 
+                        placeholder="{{ login_placeholder}}"/>
+                </div>
+                <div class="form-group">
+                    <input 
+                        type="password" 
+                        class="form-control" 
+                        name="password" 
+                        placeholder="{{ pwd_placeholder }}"/>
+                </div>
+                <button 
+                    class="btn btn-primary" 
+                    type="submit" 
+                    value="to_signin" 
+                    name="action">
+                        Войти
+                </button>
+                <a class="btn btn-primary" href="{{ facebook_signin_url }}">Войти через фейсбук</a>
+            </form>         
+        </div>
+    </div>
+</div>
+<div class="col-lg-6">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h1 class="h1">
+                {{ signup_header }}
+            </h1>
+        </div>
+        <div class="panel-body">
+            <form id="signup" class="form" role="form" method="post" action="{{ signup_url }}">
+                <div class="form-group">
+                    <input 
+                        type="text" 
+                        class="form-control" 
+                        value="{{ login }}" 
+                        name="login" 
+                        placeholder="{{ login_placeholder }}"/>
+                </div>
+                <div class="form-group">
+                    <input
+                        id="password"
+                        type="password" 
+                        class="form-control" 
+                        name="password" 
+                        placeholder="{{ pwd_placeholder }}"/>
+                </div>
+                <div class="form-group">
+                    <input
+                        id="password-confirm"
+                        type="password" 
+                        class="form-control onkeyup" 
+                        name="password_confirm" 
+                        placeholder="{{ pwd_confirm_placeholder }}"/>
+                </div>
+
+                <button 
+                    class="btn btn-primary" 
+                    type="submit" 
+                    value="to_signin" 
+                    name="action">
+                        {{ signup_caption }}
+                </button>
+            </form>         
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
