@@ -2,6 +2,10 @@ security:
     providers:
         in_memory:
             memory: ~
+        users:
+            entity: { class: AppBundle:User, property: username }
+        db:
+            id: app_oauth_user_provider
 
     firewalls:
         dev:

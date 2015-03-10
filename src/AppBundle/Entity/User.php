@@ -31,9 +31,9 @@ class User
     /**
      * @var string
      *
-     * @ORM\Column(name="hash", type="string", length=128, nullable=true)
+     * @ORM\Column(name="password", type="string", length=128, nullable=true)
      */
-    private $hash;
+    private $password;
 
     /**
      * @var string
@@ -78,26 +78,26 @@ class User
     }
 
     /**
-     * Set hash
+     * Set password
      *
-     * @param string $hash
+     * @param string $password
      * @return User
      */
-    public function setHash($hash)
+    public function setPassword($password)
     {
-        $this->hash = $hash;
+        $this->password = $password;
 
         return $this;
     }
 
     /**
-     * Get hash
+     * Get password
      *
      * @return string 
      */
-    public function getHash()
+    public function getPassword()
     {
-        return $this->hash;
+        return $this->password;
     }
 
     /**
