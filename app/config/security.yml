@@ -1,9 +1,11 @@
 security:
+
+    hide_user_not_found: false
+
+    encoders:
+        AppBundle\Entity\User: sha512
+
     providers:
-        in_memory:
-            memory: ~
-        users:
-            entity: { class: AppBundle:User, property: username }
         db:
             id: app_oauth_user_provider
 
@@ -14,9 +16,13 @@ security:
             
 #        default:
 #            anonymous: ~
-        
+
         secured_area:
             anonymous: ~
+            form_login:
+                login_path: /login
+                check_path: /login-check       
+            
             oauth:
                 resource_owners:
                     facebook: "/login/check-facebook"
@@ -30,4 +36,6 @@ security:
     access_control:
         - { path: ^/connect, roles: IS_AUTHENTICATED_ANONYMOUSLY }    
         - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/signup, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/login-check, roles: IS_AUTHENTICATED_ANONYMOUSLY }                
         - { path: ^/, roles: ROLE_USER } 

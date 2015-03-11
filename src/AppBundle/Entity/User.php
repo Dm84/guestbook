@@ -4,13 +4,17 @@ namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\EquatableInterface;
+
+
 /**
  * User
  *
  * @ORM\Table(name="user")
  * @ORM\Entity
  */
-class User
+class User implements UserInterface, EquatableInterface
 {
     /**
      * @var integer
@@ -122,4 +126,46 @@ class User
     {
         return $this->facebook;
     }
+    
+    /**
+     * (non-PHPdoc)
+     * @see \Symfony\Component\Security\Core\User\UserInterface::getRoles()
+     */
+    public function getRoles() {
+    	return array('ROLE_USER');
+    }
+    
+    public function getSalt() {
+    	return null;
+    }
+    
+    /**
+     * (non-PHPdoc)
+     *
+     * @see \Symfony\Component\Security\Core\User\UserInterface::eraseCredentials()
+     */
+    public function eraseCredentials() {
+    }
+    
+    /**
+     * (non-PHPdoc)
+     *
+     * @see \Symfony\Component\Security\Core\User\EquatableInterface::isEqualTo()
+     */
+    public function isEqualTo(UserInterface $user) {
+    	if (! $user instanceof AppUser) {
+    		return false;
+    	}
+    
+    	if ($this->user->getPassword() !== $user->getPassword ()) {
+    		return false;
+    	}
+    
+    	if ($this->user->getUsername() !== $user->getUsername ()) {
+    		return false;
+    	}
+    
+    	return true;
+    }
+    
 }

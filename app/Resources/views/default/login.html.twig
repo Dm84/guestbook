@@ -1,5 +1,14 @@
 {% extends 'base.html.twig' %}
 
+{% block messages %}
+    {% if error is not empty %}
+    <div class="alert alert-danger" role="alert">
+        <span class="glyphicon glyphicon-exclamation-sign"></span> 
+            {{ error }}
+    </div>
+    {% endif %}
+{% endblock %}
+
 {% block javascripts %}
     <script src="{{ js_path }}/jquery.js" type="text/javascript"></script>
     <script src="{{ js_path }}/bootstrap.js" type="text/javascript"></script>    
@@ -28,48 +37,39 @@
             };
             
             var handleSuccess = function (data) {
-                handleMessages(data.messages);
-                if (typeof data.response !== 'undefined') 
-                {                   
-                    $('#navbar-login').removeClass('hidden').append(data.response.login);
-                    $('#content').html(data.response.html);
-                }   
                 
+                console.log('success', data);                
+            };
+            
+            var handleError = function (data) {
+            
+                console.log('error', data);
             };
             
             var submitHandler = function(form) {
                     
-                loaderIn();
-
-                $(form).ajaxSubmit({
-
-                    dataType: 'json',
-                    success: function(data) {
-                        handleSuccess(data);
-                    },
-                    complete: function () { loaderOut(); }
-                 });
+                form.submit();
             };
 
             $('#signin').validate($.extend({
 
                 rules: {
                     
-                    login: {
+                    _username: {
                         required: true
                     },
-                    password: {
+                    _password: {
                         required: true
                     }                   
                 },
 
                 messages: {
                     
-                    login: {
-                        required: '<?php echo $lang->FieldRequired()?>'
+                    _username: {
+                        required: '{{ field_req_msg }}'
                     },
-                    password: {
-                        required: '<?php echo $lang->FieldRequired()?>'
+                    _password: {
+                        required: '{{ field_req_msg }}'
                     }
                     
                 },
@@ -89,27 +89,27 @@
                 
                 messages: {
                     
-                    password: {
-                        minlength: '<?php echo $lang->PasswordLengthRequirement() ?> 5',
-                        required: '<?php echo $lang->FieldRequired()?>'
+                    _password: {
+                        minlength: '{{ pwd_len_req_msg }} 5',
+                        required: '{{ field_req_msg }}'
                     },
                     
                     password_confirm: {
-                        equalTo: '<?php echo $lang->PasswordConfirmRequirement()?>'
+                        equalTo: '{{ pwd_confirm_req_msg }}'
                     },
                     
-                    login: {
-                        required: '<?php echo $lang->FieldRequired()?>'
+                    _username: {
+                        required: '{{ field_req_msg }}'
                     }
                 },
                 
                 rules: {
 
-                    login: {
+                    _username: {
                         required: true
                     },
 
-                    password: {
+                    _password: {
                         required: true,                                 
                         minlength: 1
                     },
@@ -142,21 +142,19 @@
                         type="text" 
                         class="form-control" 
                         value="{{ login }}" 
-                        name="login" 
+                        name="{{ signin_login_var}}" 
                         placeholder="{{ login_placeholder}}"/>
                 </div>
                 <div class="form-group">
                     <input 
                         type="password" 
                         class="form-control" 
-                        name="password" 
+                        name="{{ signin_pwd_var }}" 
                         placeholder="{{ pwd_placeholder }}"/>
                 </div>
                 <button 
                     class="btn btn-primary" 
-                    type="submit" 
-                    value="to_signin" 
-                    name="action">
+                    type="submit">
                         Войти
                 </button>
                 <a class="btn btn-primary" href="{{ facebook_signin_url }}">Войти через фейсбук</a>
@@ -178,7 +176,7 @@
                         type="text" 
                         class="form-control" 
                         value="{{ login }}" 
-                        name="login" 
+                        name="{{ signin_login_var }}" 
                         placeholder="{{ login_placeholder }}"/>
                 </div>
                 <div class="form-group">
@@ -186,7 +184,7 @@
                         id="password"
                         type="password" 
                         class="form-control" 
-                        name="password" 
+                        name="{{ signin_pwd_var }}" 
                         placeholder="{{ pwd_placeholder }}"/>
                 </div>
                 <div class="form-group">
@@ -198,11 +196,7 @@
                         placeholder="{{ pwd_confirm_placeholder }}"/>
                 </div>
 
-                <button 
-                    class="btn btn-primary" 
-                    type="submit" 
-                    value="to_signin" 
-                    name="action">
+                <button class="btn btn-primary" type="submit">
                         {{ signup_caption }}
                 </button>
             </form>         

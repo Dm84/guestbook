@@ -14,17 +14,17 @@ class AppUserProvider extends EntityUserProvider {
 		parent::__construct($registry, 'AppBundle\\Entity\\User', ['facebook' => 'facebook', 'identifier' => 'id']);
 	}
 	
-	public function loadUserByUsername($username) {
-		return new AppUser(parent::loadUserByUsername($username));
-	}	
+// 	public function loadUserByUsername($username) {
+// 		return new AppUser(parent::loadUserByUsername($username));
+// 	}	
 	
-	/**
-	 * (non-PHPdoc)
-	 * @see \HWI\Bundle\OAuthBundle\Security\Core\User\EntityUserProvider::refreshUser()
-	 */
-	public function refreshUser(UserInterface $user) {
-		return new AppUser(parent::refreshUser($user));
-	}
+// 	/**
+// 	 * (non-PHPdoc)
+// 	 * @see \HWI\Bundle\OAuthBundle\Security\Core\User\EntityUserProvider::refreshUser()
+// 	 */
+// 	public function refreshUser(UserInterface $user) {
+// 		return new AppUser(parent::refreshUser($user));
+// 	}
 	
 	/**
 	 * {@inheritdoc}
@@ -52,11 +52,11 @@ class AppUserProvider extends EntityUserProvider {
 			$this->em->flush();
 		}
 	
-		return new AppUser($user);
+		return $user;
 	}
 
 	public function supportsClass($class)
 	{
-		return $class === 'AppBundle\\Model\\AppUser';
+		return $class === 'AppBundle\\Entity\\User';
 	}	
 }
