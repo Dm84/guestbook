@@ -14,18 +14,6 @@ class AppUserProvider extends EntityUserProvider {
 		parent::__construct($registry, 'AppBundle\\Entity\\User', ['facebook' => 'facebook', 'identifier' => 'id']);
 	}
 	
-// 	public function loadUserByUsername($username) {
-// 		return new AppUser(parent::loadUserByUsername($username));
-// 	}	
-	
-// 	/**
-// 	 * (non-PHPdoc)
-// 	 * @see \HWI\Bundle\OAuthBundle\Security\Core\User\EntityUserProvider::refreshUser()
-// 	 */
-// 	public function refreshUser(UserInterface $user) {
-// 		return new AppUser(parent::refreshUser($user));
-// 	}
-	
 	/**
 	 * {@inheritdoc}
 	 */	
@@ -46,6 +34,7 @@ class AppUserProvider extends EntityUserProvider {
 			$user = new User();
 			$user->setFacebook($username);
 			$user->setUsername($username);
+			$user->setName($response->getRealName());
 			$user->setPassword('');
 			
 			$this->em->persist($user);
@@ -54,9 +43,4 @@ class AppUserProvider extends EntityUserProvider {
 	
 		return $user;
 	}
-
-	public function supportsClass($class)
-	{
-		return $class === 'AppBundle\\Entity\\User';
-	}	
 }

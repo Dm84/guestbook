@@ -1,12 +1,12 @@
 {% extends 'base.html.twig' %}
 
 {% block messages %}
-    {% if error is not empty %}
+    {% for error in errors %}
     <div class="alert alert-danger" role="alert">
         <span class="glyphicon glyphicon-exclamation-sign"></span> 
             {{ error }}
     </div>
-    {% endif %}
+    {% endfor %}
 {% endblock %}
 
 {% block javascripts %}

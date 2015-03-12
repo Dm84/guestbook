@@ -3,6 +3,8 @@
 namespace AppBundle\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
@@ -10,20 +12,28 @@ use AppBundle\Entity\User;
 use Doctrine\DBAL\DBALException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
+use Symfony\Component\HttpFoundation\JsonResponse;
+use AppBundle\Entity\Note;
+use Symfony\Component\Serializer\Encoder\JsonDecode;
+
 class DefaultController extends Controller
 {
-	/**
-	 * Сообщени об ошибке
-	 * @var string
-	 */
-	private $errMsg = ""; 
-	
     /**
      * @Route("/", name="homepage")
      */
     public function indexAction()
     {
-        return $this->render('default/index.html.twig');
+        return $this->render('default/index.html.twig', [
+        		'base_url' => $this->generateUrl('homepage'),
+        		'notes_url' => $this->generateUrl('list'),
+        		'js_path' => '/bundles/app/js',
+        		'signout_url' => '',
+        		'signout_label' => 'Выйти',
+        		'username' => $this->getUser()->getName(),
+        		'post_note_label' => 'Оставить запись',
+        		'post_label' => 'Добавить',
+        		'close_label' => 'Отмена'
+        ]);
     }
     
     /**
@@ -43,13 +53,17 @@ class DefaultController extends Controller
     	$em = $this->getDoctrine()->getManager();
     	
     	$user = new User();
-    	$user->setUsername($this->getRequest()->get("_username"));    	
+    	  	
 
     	/* @var $factory \Symfony\Component\Security\Core\Encoder\EncoderFactory */
     	$factory = $this->get('security.encoder_factory');    	
     	
-		$encoder = $factory->getEncoder($user);    	
-		$user->setPassword($encoder->encodePassword($this->getRequest()->get("_password"), $user->getSalt()));
+		$encoder = $factory->getEncoder($user);
+
+		$user->
+			setUsername($this->getRequest()->get("_username"))->
+			setPassword($encoder->encodePassword($this->getRequest()->get("_password"), $user->getSalt()))->
+			setName($user->getUsername());
 		
 		try {
 			
@@ -59,12 +73,13 @@ class DefaultController extends Controller
 			$token = new UsernamePasswordToken($user, null, 'secured_area', $user->getRoles());
 			$this->get('security.token_storage')->setToken($token);			
 		}
-		catch (\Exception $ex)
-		{
-			$this->errMsg = "Неверные данные регистрации, или такой пользователь уже зарегистрирован";
-			return $this->loginAction();
-		}
-		
+		catch (DBALException $ex)
+		{ 
+			$this->getRequest()->getSession()->getFlashBag()->add(
+				'errors',
+				"Неверные данные регистрации, или такой пользователь уже зарегистрирован"
+			);
+		}		
     	    	
     	return $this->redirectToRoute('homepage');
     }
@@ -75,16 +90,19 @@ class DefaultController extends Controller
      */
     public function loginAction()
     {
+    	$errors = $this->getRequest()->getSession()->getFlashBag()->get('errors');    	
+    	
     	/* @var $authenticationUtils \Symfony\Component\Security\Http\Authentication\AuthenticationUtils */
     	$authenticationUtils = $this->get('security.authentication_utils');
     	 
     	$error = $authenticationUtils->getLastAuthenticationError();
-    	$this->errMsg = $error instanceof AuthenticationException ? $error->getMessage() : $this->errMsg;
+    	if ($error instanceof AuthenticationException)
+    		$errors[] = $error->getMessage();
     	
     	$lastUsername = $authenticationUtils->getLastUsername();   	
     	
     	return $this->render('default/login.html.twig', [
-    			"error" => $this->errMsg,
+    			"errors" => $errors,
     			"signin_url" => $this->generateUrl('login_check'),
     			"signin_login_var" => "_username",
     			"signin_pwd_var" => "_password",    			
@@ -105,4 +123,58 @@ class DefaultController extends Controller
     			"js_path" => "/bundles/app/js"
     	]);
     }
+    
+    /**
+     * @Route("/notes", name="list")
+     * @Method("GET")
+     */
+    public function notesAction() {
+    	/* @var $em \Doctrine\ORM\EntityManager */
+	   	$em = $this->getDoctrine()->getManager();
+    	
+    	$qb = $em->createQueryBuilder();
+    	$qb->
+    		select('n.text', 'u.name as username')->
+    		from('AppBundle\\Entity\\Note', 'n')->
+    		innerJoin('AppBundle\\Entity\\User', 'u', 'WITH', 'u.id = n.id');
+    	
+    	$notes = $qb->getQuery()->getArrayResult();    	
+    	
+    	return new JsonResponse($notes);    	
+    }
+    
+    /**
+     * 
+     * @return \AppBundle\Entity\User
+     */
+    public function getUser() {
+
+    	/* @var $user User */
+    	$user = $this->get('security.context')->getToken()->getUser();
+    	 
+    	return $user;
+    }
+    
+    /**
+     * @Route("/notes", name="post")
+     * @Method("POST") 
+     */
+    public function postAction() {
+    	
+    	$user = $this->getUser();
+    	$em = $this->getDoctrine()->getManager();
+    	
+    	$note = new Note();
+    	$note->setUserId($user->getId());
+    	
+    	$content = $this->getRequest()->getContent();
+    	$arg = json_decode($content);
+    	
+    	$note->setText($arg->text);
+    	
+    	$em->persist($note);
+    	$em->flush();
+    	
+    	return new JsonResponse($note);
+    }    
 }

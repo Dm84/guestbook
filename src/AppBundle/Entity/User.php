@@ -28,10 +28,17 @@ class User implements UserInterface, EquatableInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="username", type="string", length=255, nullable=true)
+     * @ORM\Column(name="username", type="string", length=255, nullable=false)
      */
     private $username;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=255, nullable=true)
+     */
+    private $name;
+    
     /**
      * @var string
      *
@@ -56,6 +63,17 @@ class User implements UserInterface, EquatableInterface
     public function getId()
     {
         return $this->id;
+    }
+    
+    public function getName()
+    {
+    	return $this->name;
+    }
+    
+    public function setName($name)
+    {
+    	$this->name = $name;
+    	return $this;
     }
 
     /**

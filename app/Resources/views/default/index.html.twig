@@ -1,5 +1,141 @@
 {% extends 'base.html.twig' %}
 
-{% block body %}
-    Homepage.
+{% block navbar %}
+    <nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <p id="navbar-login" class="navbar-text">
+             <span class="glyphicon glyphicon-user"></span>
+             {{ username }}
+        </p>
+        
+        <ul class="nav navbar-nav">
+            <li>        
+                <a href="javascript:void(0)" id="post-note-btn" data-toggle="modal" data-target="#post-note-modal" class="btn">
+                    {{ post_note_label }}
+                </a>
+            </li>
+        </ul>
+        
+        <ul class="nav navbar-nav navbar-right">            
+            <li><a class="btn" href="{{ signout_url }}">{{ signout_label }}</a></li>
+        </ul>
+    </div>      
+</nav>
+
+<div id="edit-region">
+</div>
+
+{% endblock %}
+
+{% block content %}
+    <div id="note-list"></div>
+    
+    {% raw %}
+    <script type="text/x-handlerbars-template" id="note-item-template">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                {{username}}
+            </div>
+            <div class="panel-body">
+                {{text}}
+            </div>
+        </div>
+    </script>    
+    {% endraw %}
+    
+    <script type="text/x-handlebars-template" id="note-edit-template">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">{{ post_note_label }}</h4>
+              </div>
+              <div class="modal-body">
+                <form id="note-edit-form">
+                {% raw %}       
+                    <textarea name="text" id="note-text" class="form-control">{{ text }}</textarea>
+                 {% endraw %}
+                </form>              
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ close_label }}</button>
+                <button type="button" class="btn btn-primary save-btn">{{ post_label }}</button>
+              </div>
+            </div><!-- /.modal-content -->
+          </div><!-- /.modal-dialog -->
+    </script>
+    
+    
+{% endblock %}
+
+{% block javascripts %}
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.15/require.js"></script>
+    <script>
+        define('app', ['jquery', 'backbone', 'marionette', 'handlebars', 
+                 'models/note', 'collections/notes', 'views/note', 'views/note_list', 'views/note_edit'], 
+                 function ( $, Backbone, Marionette, Handlebars, NoteModel, NoteCollection, NoteView, NoteListView, NoteEditView)
+        {
+            Marionette.TemplateCache.prototype.compileTemplate = function (rawTemplate) {
+                return Handlebars.compile(rawTemplate);
+            };
+            
+            Handlebars.registerHelper('dateFormat', function(date) {
+                
+                function pad(n, width, z) {
+                      z = z || '0';
+                      n = n + '';
+                      return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+                }
+                
+                var date = new Date(date);
+                return  pad(date.getDate(), 2) + "." + pad(date.getMonth() + 1, 2) + "." + 
+                        date.getFullYear() + " " + 
+                        pad(date.getHours(), 2) + ":" + pad(date.getMinutes(), 2);
+            });
+            
+        
+            var app = new Backbone.Marionette.Application();        
+            app.addRegions({notesRegion: "#note-list", editRegion: '#edit-region'});
+  
+            
+            var base_url = '{{ base_url }}', notes_url = '{{ notes_url }}';
+            
+            app.noteEditView = new NoteEditView({ model: new NoteModel({}, { url: notes_url }), template: '#note-edit-template'});
+            app.noteCollection = new NoteCollection([], { url: notes_url });
+            
+            app.listView = new NoteListView({ 
+                collection: app.noteCollection, 
+                childView: NoteView.extend({ template: '#note-item-template'})
+            });
+            
+            app.on("start", function () {       
+                app.notesRegion.show(app.listView);
+                app.editRegion.show(app.noteEditView);
+            });     
+            
+            return app;
+        });
+            
+        requirejs(["app"], function(app) {
+            requirejs(["bootstrap"], function () {
+                $(function () {
+                    app.start();    
+                });
+            });     
+        });
+
+        requirejs.config({
+            baseUrl: "/bundles/app/js/app",
+            paths: {
+                jquery: 'http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery',
+                backbone: 'http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone',
+                handlebars: 'http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars',
+                underscore: 'http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore',
+                bootstrap: '/bundles/app/js/bootstrap',
+                marionette: 'http://cdnjs.cloudflare.com/ajax/libs/backbone.marionette/2.2.2/backbone.marionette'
+        
+            }
+        });
+    
+    </script>
 {% endblock %}
