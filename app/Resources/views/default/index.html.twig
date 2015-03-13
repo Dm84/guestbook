@@ -10,7 +10,7 @@
         
         <ul class="nav navbar-nav">
             <li>        
-                <a href="javascript:void(0)" id="post-note-btn" data-toggle="modal" data-target="#post-note-modal" class="btn">
+                <a href="javascript:void(0)" id="post-note-btn" class="btn" id="post-note-btn">
                     {{ post_note_label }}
                 </a>
             </li>
@@ -22,28 +22,41 @@
     </div>      
 </nav>
 
-<div id="edit-region">
-</div>
+<div id="post-region"></div>
+<div id="edit-region"></div>
 
 {% endblock %}
 
 {% block content %}
-    <div id="note-list"></div>
-    
-    {% raw %}
-    <script type="text/x-handlerbars-template" id="note-item-template">
-        <div class="panel panel-default">
+
+<div class="row">
+	<div class="col-xs-8">	   
+   		<div id="note-list"></div>
+   	</div>
+</div>
+   
+    <script type="text/x-handlerbars-template" id="note-item-template">        
+        {% raw %}
+        <div class="panel panel-default" data-user_id="{{user_id}}">                
             <div class="panel-heading">
                 {{username}}
             </div>
             <div class="panel-body">
                 {{text}}
             </div>
-        </div>
+            <div class="panel-footer hidden">
+                <button class="btn btn-primary btn-edit">            
+        {% endraw %}        
+                    {{ edit_note_label }}
+                </button>
+            </div>
+        
+        </div>       
     </script>    
-    {% endraw %}
+    
     
     <script type="text/x-handlebars-template" id="note-edit-template">
+		<div class="modal fade" id="note-post-modal">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
@@ -63,24 +76,23 @@
               </div>
             </div><!-- /.modal-content -->
           </div><!-- /.modal-dialog -->
-    </script>
-    
-    
+		</div>
+    </script>    
 {% endblock %}
 
 {% block javascripts %}
     <script src="http://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.15/require.js"></script>
     <script>
         define('app', ['jquery', 'backbone', 'marionette', 'handlebars', 
-                 'models/note', 'collections/notes', 'views/note', 'views/note_list', 'views/note_edit'], 
-                 function ( $, Backbone, Marionette, Handlebars, NoteModel, NoteCollection, NoteView, NoteListView, NoteEditView)
+                 'models/note', 'collections/notes', 'views/note', 'views/note_list', 'views/note_edit', 'views/note_post'], 
+                 function ( $, Backbone, Marionette, Handlebars, 
+                         	NoteModel, NoteCollection, NoteView, NoteListView, NoteEditView, NotePostView)
         {
             Marionette.TemplateCache.prototype.compileTemplate = function (rawTemplate) {
                 return Handlebars.compile(rawTemplate);
             };
             
-            Handlebars.registerHelper('dateFormat', function(date) {
-                
+            Handlebars.registerHelper('dateFormat', function(date) {                
                 function pad(n, width, z) {
                       z = z || '0';
                       n = n + '';
@@ -95,22 +107,38 @@
             
         
             var app = new Backbone.Marionette.Application();        
-            app.addRegions({notesRegion: "#note-list", editRegion: '#edit-region'});
-  
+            app.addRegions({notesRegion: "#note-list", editModalRegion: '#edit-region', postModalRegion: '#post-region'});  
             
-            var base_url = '{{ base_url }}', notes_url = '{{ notes_url }}';
+            var base_url = '{{ base_url }}', 
+            	notes_url = '{{ notes_url }}';
+
+            var NoteEditModel = NoteModel.extend({ urlRoot: notes_url });
+
+            app.noteCollection = new NoteCollection([], {
+ 				url: notes_url,
+            	model: NoteModel.extend({ user_id: {{user_id}} })				
+ 			});		
             
-            app.noteEditView = new NoteEditView({ model: new NoteModel({}, { url: notes_url }), template: '#note-edit-template'});
-            app.noteCollection = new NoteCollection([], { url: notes_url });
+            app.noteEditView = new NoteEditView();
+            app.notePostView = new NotePostView({ collection: app.noteCollection });
+	           
             
-            app.listView = new NoteListView({ 
-                collection: app.noteCollection, 
-                childView: NoteView.extend({ template: '#note-item-template'})
+            app.listView = new NoteListView({
+                editView: app.noteEditView,
+                collection: app.noteCollection
             });
-            
-            app.on("start", function () {       
+
+         
+            app.on("start", function () {            	
                 app.notesRegion.show(app.listView);
-                app.editRegion.show(app.noteEditView);
+                
+                app.editModalRegion.show(app.noteEditView);
+                app.postModalRegion.show(app.notePostView);
+
+                $('#post-note-btn').click(function () {
+                    app.notePostView.showModal();	
+                });
+                
             });     
             
             return app;

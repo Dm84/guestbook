@@ -95,7 +95,8 @@ class Note implements \JsonSerializable
     
     public function jsonSerialize() {
     	return array (
-    			'text' => strip_tags($this->text)
+    		'user_id' => $this->userId,
+    		'text' => strip_tags($this->text)
     	);
     }
 }

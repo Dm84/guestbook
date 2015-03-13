@@ -15,6 +15,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use AppBundle\Entity\Note;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
+use Symfony\Component\HttpFoundation\Symfony\Component\HttpFoundation;
 
 class DefaultController extends Controller
 {
@@ -23,16 +24,20 @@ class DefaultController extends Controller
      */
     public function indexAction()
     {
+    	$user = $this->getUser();
         return $this->render('default/index.html.twig', [
         		'base_url' => $this->generateUrl('homepage'),
         		'notes_url' => $this->generateUrl('list'),
         		'js_path' => '/bundles/app/js',
         		'signout_url' => '',
         		'signout_label' => 'Выйти',
-        		'username' => $this->getUser()->getName(),
+        		'user_id' => $user->getId(),
+        		'username' => $user->getName(),
         		'post_note_label' => 'Оставить запись',
-        		'post_label' => 'Добавить',
-        		'close_label' => 'Отмена'
+        		'edit_note_label' => 'Редактировать',
+        		'post_label' => 'Сохранить',
+        		'close_label' => 'Отмена',
+        		'save_label' => 'Сохранить'
         ]);
     }
     
@@ -134,9 +139,9 @@ class DefaultController extends Controller
     	
     	$qb = $em->createQueryBuilder();
     	$qb->
-    		select('n.text', 'u.name as username')->
+    		select('n.id', 'n.text', 'u.name as username', 'n.userId as user_id')->
     		from('AppBundle\\Entity\\Note', 'n')->
-    		innerJoin('AppBundle\\Entity\\User', 'u', 'WITH', 'u.id = n.id');
+    		innerJoin('AppBundle\\Entity\\User', 'u', 'WITH', 'u.id = n.userId');
     	
     	$notes = $qb->getQuery()->getArrayResult();    	
     	
@@ -153,6 +158,34 @@ class DefaultController extends Controller
     	$user = $this->get('security.context')->getToken()->getUser();
     	 
     	return $user;
+    }
+
+    /**
+     * @Route("/notes/{id}", name="edit", requirements={"id": "\d+"})
+     * @Method("PUT")
+     */    
+    public function editAction($id)
+    {
+    	$user = $this->getUser();
+    	$em = $this->getDoctrine()->getManager();
+    	 
+    	$repo = $em->getRepository('AppBundle\\Entity\\Note');
+    	
+    	/* @var $note Note */
+    	$note = $repo->find($id);
+    	
+    	//можем редактировать только свой пост
+    	if ($note->getUserId() == $user->getId())
+    	{
+    		$content = $this->getRequest()->getContent();
+    		$arg = json_decode($content);
+    		
+    		$note->setText($arg->text);
+    		$em->flush();
+    	}  
+    	
+    	
+    	return new JsonResponse($note);
     }
     
     /**
@@ -173,8 +206,13 @@ class DefaultController extends Controller
     	$note->setText($arg->text);
     	
     	$em->persist($note);
-    	$em->flush();
+    	$em->flush();   	
     	
-    	return new JsonResponse($note);
+    	$obj = new \stdClass();
+    	$obj->text = strip_tags($note->getText());
+    	$obj->user_id = $note->getUserId();
+    	$obj->username = $user->getName();
+    	
+    	return new JsonResponse($obj);
     }    
 }
