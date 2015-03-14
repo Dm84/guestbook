@@ -31,7 +31,7 @@ class DefaultController extends Controller
         		'notes_url' => $this->generateUrl('list'),
         		'profile_url' => $this->generateUrl('profile'),
         		'js_path' => '/bundles/app/js',
-        		'signout_url' => '',
+        		'signout_url' => $this->generateUrl('logout'),
         		'signout_label' => 'Выйти',
         		'user_id' => $user->getId(),
         		'username' => $user->getName(),
@@ -143,6 +143,7 @@ class DefaultController extends Controller
 	   	$em = $this->getDoctrine()->getManager();
     	
     	$qb = $em->createQueryBuilder();
+    	
     	$qb->
     		select('n.id', 'n.text', 'u.name as username', 'n.userId as user_id')->
     		from('AppBundle\\Entity\\Note', 'n')->

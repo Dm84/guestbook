@@ -13,7 +13,7 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt|error)|css|images|js)/
             security: false
-            
+                        
 #        default:
 #            anonymous: ~
 
@@ -21,7 +21,11 @@ security:
             anonymous: ~
             form_login:
                 login_path: /login
-                check_path: /login-check       
+                check_path: /login-check
+                       
+            logout:
+                path:   /logout
+                target: /login
             
             oauth:
                 resource_owners:
