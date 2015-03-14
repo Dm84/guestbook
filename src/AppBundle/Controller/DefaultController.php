@@ -26,6 +26,7 @@ class DefaultController extends Controller
     {
     	$user = $this->getUser();
         return $this->render('default/index.html.twig', [
+        		'app_id' => '1582314262008715',
         		'base_url' => $this->generateUrl('homepage'),
         		'notes_url' => $this->generateUrl('list'),
         		'profile_url' => $this->generateUrl('profile'),
@@ -38,6 +39,7 @@ class DefaultController extends Controller
         		'edit_note_label' => 'Редактировать',
         		'profile_edit_label' => 'Редактировать профиль',
         		'profile_name_label' => 'Ваше имя',
+        		'friends_label' => 'Друзья в фейсбуке',
         		'post_label' => 'Сохранить',
         		'close_label' => 'Отмена',
         		'save_label' => 'Сохранить'
