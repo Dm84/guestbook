@@ -14,7 +14,7 @@ use Symfony\Component\Security\Core\User\EquatableInterface;
  * @ORM\Table(name="user")
  * @ORM\Entity
  */
-class User implements UserInterface, EquatableInterface
+class User implements UserInterface, EquatableInterface, \JsonSerializable
 {
     /**
      * @var integer
@@ -184,6 +184,13 @@ class User implements UserInterface, EquatableInterface
     	}
     
     	return true;
+    }
+    
+    public function jsonSerialize() {
+    	return array (
+    		'id' => $this->id,
+    		'name' => strip_tags($this->name)
+    	);    	 
     }
     
 }

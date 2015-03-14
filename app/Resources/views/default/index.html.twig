@@ -1,29 +1,66 @@
 {% extends 'base.html.twig' %}
 
 {% block navbar %}
-    <nav class="navbar navbar-default" role="navigation">
-    <div class="container-fluid">
-        <p id="navbar-login" class="navbar-text">
-             <span class="glyphicon glyphicon-user"></span>
-             {{ username }}
-        </p>
-        
-        <ul class="nav navbar-nav">
-            <li>        
-                <a href="javascript:void(0)" id="post-note-btn" class="btn" id="post-note-btn">
-                    {{ post_note_label }}
-                </a>
-            </li>
-        </ul>
-        
-        <ul class="nav navbar-nav navbar-right">            
-            <li><a class="btn" href="{{ signout_url }}">{{ signout_label }}</a></li>
-        </ul>
-    </div>      
-</nav>
+	<div id="userbar-region"></div>
+	<div id="post-region"></div>
+	<div id="edit-region"></div>
 
-<div id="post-region"></div>
-<div id="edit-region"></div>
+
+	<script type="text/x-handlebars-template" id="userbar-template">
+    <nav class="navbar navbar-default" role="navigation">
+	    <div class="container-fluid">
+			<div class="navbar-header">
+			{% raw %}
+	        <a id="navbar-login" class="navbar-brand" href="#">
+	             <span class="glyphicon glyphicon-user"></span>
+	             {{ name }}
+	        </a>
+			{% endraw %}
+			</div>
+	        
+	        <ul class="nav navbar-nav">
+	            <li>        
+	                <a href="javascript:void(0)" id="post-note-btn" class="btn" id="post-note-btn">
+	                    {{ post_note_label }}
+	                </a>
+	            </li>
+	        </ul>
+	        
+	        <ul class="nav navbar-nav navbar-right">            
+	            <li><a class="btn" href="{{ signout_url }}">{{ signout_label }}</a></li>
+	        </ul>
+	    </div>      
+	</nav>
+
+		<div class="modal fade" id="profile-edit-modal">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">{{ profile_edit_label }}</h4>
+              </div>
+              <div class="modal-body">
+                <form id="profile-edit-form">
+                       
+				<div class="input-group">
+  					<span class="input-group-addon" id="input-addon-name">{{profile_name_label}}</span>
+					{% raw %}
+					<input	type="text" name="name" id="profile-name" class="form-control" 
+							aria-describedby="input-addon-name" value="{{ name }}"/>
+					{% endraw %}  
+				</div>                  
+                 
+                </form>              
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ close_label }}</button>
+                <button type="button" class="btn btn-primary save-btn">{{ save_label }}</button>
+              </div>
+            </div><!-- /.modal-content -->
+          </div><!-- /.modal-dialog -->
+		</div>
+
+	</script>
 
 {% endblock %}
 
@@ -77,16 +114,19 @@
             </div><!-- /.modal-content -->
           </div><!-- /.modal-dialog -->
 		</div>
-    </script>    
+    </script>
+    
+        
 {% endblock %}
 
 {% block javascripts %}
     <script src="http://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.15/require.js"></script>
     <script>
         define('app', ['jquery', 'backbone', 'marionette', 'handlebars', 
-                 'models/note', 'collections/notes', 'views/note', 'views/note_list', 'views/note_edit', 'views/note_post'], 
+                 'models/note', 'collections/notes', 'views/note', 'views/note_list', 
+                 'views/note_edit', 'views/note_post', 'views/userbar'], 
                  function ( $, Backbone, Marionette, Handlebars, 
-                         	NoteModel, NoteCollection, NoteView, NoteListView, NoteEditView, NotePostView)
+                         	NoteModel, NoteCollection, NoteView, NoteListView, NoteEditView, NotePostView, UserbarView)
         {
             Marionette.TemplateCache.prototype.compileTemplate = function (rawTemplate) {
                 return Handlebars.compile(rawTemplate);
@@ -107,7 +147,11 @@
             
         
             var app = new Backbone.Marionette.Application();        
-            app.addRegions({notesRegion: "#note-list", editModalRegion: '#edit-region', postModalRegion: '#post-region'});  
+            app.addRegions({
+                notesRegion: "#note-list", 
+                editModalRegion: '#edit-region', 
+                postModalRegion: '#post-region',
+                userbarRegion: '#userbar-region'});  
             
             var base_url = '{{ base_url }}', 
             	notes_url = '{{ notes_url }}';
@@ -121,7 +165,12 @@
             
             app.noteEditView = new NoteEditView();
             app.notePostView = new NotePostView({ collection: app.noteCollection });
-	           
+
+            app.profileModel = Backbone.Model.extend({ urlRoot: '{{ profile_url  }}' });
+            
+            app.userbarView = new UserbarView({ 
+                model: new app.profileModel({ id: {{ user_id }}, name: '{{ username }}' })                 
+            });	           
             
             app.listView = new NoteListView({
                 editView: app.noteEditView,
@@ -134,9 +183,14 @@
                 
                 app.editModalRegion.show(app.noteEditView);
                 app.postModalRegion.show(app.notePostView);
+                app.userbarRegion.show(app.userbarView);
 
                 $('#post-note-btn').click(function () {
                     app.notePostView.showModal();	
+                });
+
+                $('#navbar-login').click(function () {
+                    app.userbarView.showModal();
                 });
                 
             });     

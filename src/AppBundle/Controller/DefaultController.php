@@ -28,6 +28,7 @@ class DefaultController extends Controller
         return $this->render('default/index.html.twig', [
         		'base_url' => $this->generateUrl('homepage'),
         		'notes_url' => $this->generateUrl('list'),
+        		'profile_url' => $this->generateUrl('profile'),
         		'js_path' => '/bundles/app/js',
         		'signout_url' => '',
         		'signout_label' => 'Выйти',
@@ -35,6 +36,8 @@ class DefaultController extends Controller
         		'username' => $user->getName(),
         		'post_note_label' => 'Оставить запись',
         		'edit_note_label' => 'Редактировать',
+        		'profile_edit_label' => 'Редактировать профиль',
+        		'profile_name_label' => 'Ваше имя',
         		'post_label' => 'Сохранить',
         		'close_label' => 'Отмена',
         		'save_label' => 'Сохранить'
@@ -177,13 +180,10 @@ class DefaultController extends Controller
     	//можем редактировать только свой пост
     	if ($note->getUserId() == $user->getId())
     	{
-    		$content = $this->getRequest()->getContent();
-    		$arg = json_decode($content);
-    		
+    		$arg = $this->getReqObj();    		
     		$note->setText($arg->text);
     		$em->flush();
-    	}  
-    	
+    	}    	
     	
     	return new JsonResponse($note);
     }
@@ -200,8 +200,7 @@ class DefaultController extends Controller
     	$note = new Note();
     	$note->setUserId($user->getId());
     	
-    	$content = $this->getRequest()->getContent();
-    	$arg = json_decode($content);
+    	$arg = $this->getReqObj();
     	
     	$note->setText($arg->text);
     	
@@ -214,5 +213,36 @@ class DefaultController extends Controller
     	$obj->username = $user->getName();
     	
     	return new JsonResponse($obj);
-    }    
+    }
+    
+    public function getReqObj() {
+    	$content = $this->getRequest()->getContent();
+    	return json_decode($content);    	 
+    }
+    
+    /**
+     * @Route("/profile", name="profile")
+     * @Method("GET")
+     */
+    public function profileAction() {
+    	$user = $this->getUser();
+    	return new JsonResponse($user);
+    }
+
+    /**
+     * @Route("/profile/{id}", name="profileEdit")
+     * @Method("PUT") 
+     */
+    public function profileEditAction() {    	
+    	$user = $this->getUser();    	
+    	
+    	$obj = $this->getReqObj();
+		$user->setName($obj->name);		
+		
+		$em = $this->getDoctrine()->getManager();
+		$em->persist($user);
+		$em->flush();
+		
+		return new JsonResponse($obj);		    	
+    }
 }
