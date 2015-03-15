@@ -6,9 +6,16 @@
         <title>{% block title %}Welcome!{% endblock %}</title>
         
         {% block stylesheets  %}
-            <link href="/bundles/app/css/bootstrap.css" rel="stylesheet" />       
+            <link href="{{ resources_url }}/css/bootstrap.css" rel="stylesheet" />       
         {% endblock %}
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+        
+        <style>        	
+        	.loader {
+				min-height: 16px;
+				background: url("{{ resources_url }}/images/loader.gif") center center no-repeat;        	
+        	}
+        </style>
     </head>
     <body>      
         

@@ -30,7 +30,7 @@ class DefaultController extends Controller
         		'base_url' => $this->generateUrl('homepage'),
         		'notes_url' => $this->generateUrl('list'),
         		'profile_url' => $this->generateUrl('profile'),
-        		'js_path' => '/bundles/app/js',
+        		'resources_url' => '/bundles/app',
         		'signout_url' => $this->generateUrl('logout'),
         		'signout_label' => 'Выйти',
         		'user_id' => $user->getId(),
@@ -39,7 +39,7 @@ class DefaultController extends Controller
         		'edit_note_label' => 'Редактировать',
         		'profile_edit_label' => 'Редактировать профиль',
         		'profile_name_label' => 'Ваше имя',
-        		'friends_label' => 'Друзья в фейсбуке',
+        		'friends_label' => 'Друзья',
         		'post_label' => 'Сохранить',
         		'close_label' => 'Отмена',
         		'save_label' => 'Сохранить'

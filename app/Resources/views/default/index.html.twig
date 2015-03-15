@@ -20,21 +20,9 @@
        }(document, 'script', 'facebook-jssdk'));
     </script>
 
-	<div id="userbar-region"></div>
-	<div id="post-region"></div>
-	<div id="edit-region"></div>
-
-
-	<script type="text/x-handlebars-template" id="userbar-template">
-    <nav class="navbar navbar-default" role="navigation">
+        <nav class="navbar navbar-default" role="navigation">
 	    <div class="container-fluid">
-			<div class="navbar-header">
-			{% raw %}
-	        <a id="navbar-login" class="navbar-brand" href="#">
-	             <span class="glyphicon glyphicon-user"></span>
-	             {{ name }}
-	        </a>
-			{% endraw %}
+			<div class="navbar-header" id="userbar-region">
 			</div>
 	        
 	        <ul class="nav navbar-nav">
@@ -49,7 +37,20 @@
 	            <li><a class="btn" href="{{ signout_url }}">{{ signout_label }}</a></li>
 	        </ul>
 	    </div>      
-	</nav>
+	</nav>   
+	
+	<div id="post-region"></div>
+	<div id="edit-region"></div>
+
+	<script type="text/x-handlebars-template" id="userbar-template">
+
+			{% raw %}
+	        <a id="navbar-login" class="navbar-brand" href="#">
+	             <span class="glyphicon glyphicon-user"></span>
+	             {{ name }}
+	        </a>
+			{% endraw %}
+
 
 		<div class="modal fade" id="profile-edit-modal">
           <div class="modal-dialog">
@@ -111,17 +112,21 @@
 
 <div class="row">
 	<div class="col-xs-6">	   
-   		<div id="note-list"></div>
+   		<div id="note-list">
+   			<div class="loader"></div>
+   		</div>
    	</div>
    	
 </div>
 
 	<script type="text/x-handlebars-template" id="friend-item-template">
-					<div class="list-group-item" id="player-<?php echo $player->login?>">
+					<div class="list-group-item">
+						{% raw %}
 						<div class="h5">
 							<span class="glyphicon glyphicon-user"></span>
-							login
-						</div>							
+							{{ name }}
+						</div>	
+						{% endraw %}						
 						<div class="clearfix"></div>	
 					</div>
 	</script>
@@ -186,21 +191,7 @@
                 return Handlebars.compile(rawTemplate);
             };
             
-            Handlebars.registerHelper('dateFormat', function(date) {                
-                function pad(n, width, z) {
-                      z = z || '0';
-                      n = n + '';
-                      return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-                }
-                
-                var date = new Date(date);
-                return  pad(date.getDate(), 2) + "." + pad(date.getMonth() + 1, 2) + "." + 
-                        date.getFullYear() + " " + 
-                        pad(date.getHours(), 2) + ":" + pad(date.getMinutes(), 2);
-            });
-            
-        
-            var app = new Backbone.Marionette.Application();        
+           	var app = new Backbone.Marionette.Application();        
             app.addRegions({
                 notesRegion: "#note-list", 
                 editModalRegion: '#edit-region', 
@@ -234,12 +225,7 @@
             });
 
             app.FriendView = Marionette.ItemView.extend({ template: '#friend-item-template' });
-			app.FriendsCollection = Backbone.Collection.extend({ 
-//				url: 'https://graph.facebook.com/v2.2/me/friends'
-// 				initialize: function () {
-// 					this.fetch();
-// 				} 
-			});
+			app.FriendsCollection = Backbone.Collection.extend({});
             app.FriendsView = Marionette.CollectionView.extend({
 				childView: app.FriendView
             });
@@ -258,12 +244,7 @@
                     e.preventDefault();
                     app.notePostView.showModal();	
                 });
-
-                $('#navbar-login').click(function (e) {
-                	e.preventDefault();
-                    app.userbarView.showModal();
-                });
-
+                
                 var fillFriends = function () {
                     FB.api('/me/friends', function (response) {
     	   				app.friendsView.collection.set(response.data);	
@@ -293,13 +274,13 @@
         });
 
         requirejs.config({
-            baseUrl: "/bundles/app/js/app",
+            baseUrl: '{{ resources_url }}/js/app',
             paths: {
                 jquery: 'http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery',
                 backbone: 'http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone',
                 handlebars: 'http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars',
                 underscore: 'http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore',
-                bootstrap: '/bundles/app/js/bootstrap',
+                bootstrap: '{{ resources_url }}/js/bootstrap',
                 marionette: 'http://cdnjs.cloudflare.com/ajax/libs/backbone.marionette/2.2.2/backbone.marionette'
         
             }
