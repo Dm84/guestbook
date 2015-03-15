@@ -52,7 +52,9 @@ doctrine:
         dbname:   "%database_name%"
         user:     "%database_user%"
         password: "%database_password%"
-        charset:  UTF8
+        charset:  UTF
+        
+
         # if using pdo_sqlite as your database driver:
         #   1. add the path in parameters.yml
         #     e.g. database_path: "%kernel.root_dir%/data/data.db3"
@@ -63,6 +65,7 @@ doctrine:
     orm:
         auto_generate_proxy_classes: "%kernel.debug%"
         auto_mapping: true
+
 
 # Swiftmailer Configuration
 swiftmailer:
@@ -77,7 +80,7 @@ hwi_oauth:
     resource_owners:
         facebook:
             type: facebook
-            client_id: 1582314262008715
-            client_secret: 0e2057c7b5089cbdc60b5d4214b18534
+            client_id: %app_id%
+            client_secret: %app_secret%
             options:
                 display: popup 

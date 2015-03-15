@@ -130,7 +130,7 @@ class DefaultController extends Controller
     			"signup_header" => "Регистрация",    			
     			"signup_url" => $this->generateUrl('signup'),    			
     			"signup_caption" => "Зарегистрироваться",    			
-    			"js_path" => "/bundles/app/js"
+    			"resources_url" => "/bundles/app"
     	]);
     }
     

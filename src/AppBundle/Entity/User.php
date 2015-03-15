@@ -11,7 +11,7 @@ use Symfony\Component\Security\Core\User\EquatableInterface;
 /**
  * User
  *
- * @ORM\Table(name="user")
+ * @ORM\Table(name="public.user")
  * @ORM\Entity
  */
 class User implements UserInterface, EquatableInterface, \JsonSerializable

@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Note
  *
- * @ORM\Table(name="note")
+ * @ORM\Table(name="public.note")
  * @ORM\Entity
  */
 class Note implements \JsonSerializable
