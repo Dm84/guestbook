@@ -30,11 +30,10 @@ twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
 
-# Assetic Configuration
 assetic:
     debug:          "%kernel.debug%"
     use_controller: false
-    bundles:        [ AppBundle ]
+    bundles:        [ ]
     #java: /usr/bin/java
     filters:
         cssrewrite: ~
