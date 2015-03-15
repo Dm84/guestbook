@@ -112,8 +112,7 @@
 
 <div class="row">
 	<div class="col-xs-6">	   
-   		<div id="note-list">
-   			<div class="loader"></div>
+   		<div id="note-list-region">   		   			
    		</div>
    	</div>
    	
@@ -193,7 +192,7 @@
             
            	var app = new Backbone.Marionette.Application();        
             app.addRegions({
-                notesRegion: "#note-list", 
+                notesRegion: "#note-list-region", 
                 editModalRegion: '#edit-region', 
                 postModalRegion: '#post-region',
                 userbarRegion: '#userbar-region',
@@ -238,8 +237,8 @@
                 app.editModalRegion.show(app.noteEditView);
                 app.postModalRegion.show(app.notePostView);
                 app.userbarRegion.show(app.userbarView);
-                app.friendsRegion.show(app.friendsView);
-
+                app.friendsRegion.show(app.friendsView);				
+                
                 $('#post-note-btn').click(function (e) {
                     e.preventDefault();
                     app.notePostView.showModal();	
