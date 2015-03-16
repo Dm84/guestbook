@@ -14,11 +14,11 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use AppBundle\Entity\Note;
-use Symfony\Component\Serializer\Encoder\JsonDecode;
-use Symfony\Component\HttpFoundation\Symfony\Component\HttpFoundation;
 
 class DefaultController extends Controller
 {
+	const RES_PATH = '/bundles/app';
+	
     /**
      * @Route("/", name="homepage")
      */
@@ -30,7 +30,7 @@ class DefaultController extends Controller
         		'base_url' => $this->generateUrl('homepage'),
         		'notes_url' => $this->generateUrl('list'),
         		'profile_url' => $this->generateUrl('profile'),
-        		'resources_url' => '/bundles/app',
+        		'resources_url' => self::RES_PATH,
         		'signout_url' => $this->generateUrl('logout'),
         		'signout_label' => 'Выйти',
         		'user_id' => $user->getId(),
@@ -107,7 +107,9 @@ class DefaultController extends Controller
     	 
     	$error = $authenticationUtils->getLastAuthenticationError();
     	if ($error instanceof AuthenticationException)
+		{
     		$errors[] = $error->getMessage();
+		}
     	
     	$lastUsername = $authenticationUtils->getLastUsername();   	
     	
@@ -130,7 +132,7 @@ class DefaultController extends Controller
     			"signup_header" => "Регистрация",    			
     			"signup_url" => $this->generateUrl('signup'),    			
     			"signup_caption" => "Зарегистрироваться",    			
-    			"resources_url" => "/bundles/app"
+    			"resources_url" => self::RES_PATH
     	]);
     }
     
@@ -153,7 +155,7 @@ class DefaultController extends Controller
     	
     	return new JsonResponse($notes);    	
     }
-    
+
     /**
      * 
      * @return \AppBundle\Entity\User
@@ -173,15 +175,15 @@ class DefaultController extends Controller
     public function editAction($id)
     {
     	$user = $this->getUser();
-    	$em = $this->getDoctrine()->getManager();
-    	 
+    	$em = $this->getDoctrine()->getManager();    	 
+		
     	$repo = $em->getRepository('AppBundle\\Entity\\Note');
     	
     	/* @var $note Note */
     	$note = $repo->find($id);
     	
     	//можем редактировать только свой пост
-    	if ($note->getUserId() == $user->getId())
+    	if ($note->getUserId() === $user->getId())
     	{
     		$arg = $this->getReqObj();    		
     		$note->setText($arg->text);
