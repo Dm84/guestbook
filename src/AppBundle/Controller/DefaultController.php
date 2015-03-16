@@ -26,7 +26,7 @@ class DefaultController extends Controller
     {
     	$user = $this->getUser();
         return $this->render('default/index.html.twig', [
-        		'app_id' => '1582314262008715',
+        		'app_id' => $this->container->getParameter('app_id'),
         		'base_url' => $this->generateUrl('homepage'),
         		'notes_url' => $this->generateUrl('list'),
         		'profile_url' => $this->generateUrl('profile'),
