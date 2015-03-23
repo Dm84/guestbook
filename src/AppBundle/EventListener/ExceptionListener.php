@@ -10,7 +10,7 @@ class ExceptionListener
 {
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
-		$exception = $event->getException();
+/*		$exception = $event->getException();
 		
 		if ($event->getRequest()->isXmlHttpRequest())
 		{
@@ -55,7 +55,7 @@ class ExceptionListener
 
         // Send the modified response object to the event
         //$event->setResponse($response); 
-
+*/
 		$event->stopPropagation();
 		
 		return true;

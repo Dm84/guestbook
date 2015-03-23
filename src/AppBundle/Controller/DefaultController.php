@@ -51,6 +51,15 @@ class DefaultController extends Controller
      */
     public function loginCheckAction()
     {
+    	$username = $this->getRequest()->get("_username");
+    	if (empty($username))
+    	{
+    		$this->getRequest()->getSession()->getFlashBag()->add(
+    				'errors',
+    				"Неверные данные входа"
+    		);    		
+    	}
+    	
     	return $this->redirectToRoute('homepage');
     }    
     
@@ -60,43 +69,59 @@ class DefaultController extends Controller
      */
     public function signupAction() {
     	
+    	$username = $this->getRequest()->get("_username");
+    	
     	$em = $this->getDoctrine()->getManager();
+    	$repo = $em->getRepository('AppBundle\\Entity\\User');    	
     	
-    	$user = new User();
-    	  	
-
-    	/* @var $factory \Symfony\Component\Security\Core\Encoder\EncoderFactory */
-    	$factory = $this->get('security.encoder_factory');    	
+    	$users = $repo->findBy(array('username' => $username));
     	
-		$encoder = $factory->getEncoder($user);
-
-		$user->
-			setUsername($this->getRequest()->get("_username"))->
-			setPassword($encoder->encodePassword($this->getRequest()->get("_password"), $user->getSalt()))->
-			setName($user->getUsername());
-		
-		try {
+    	if (is_array($users) && count($users) > 0)
+    	{
+    		$this->getRequest()->getSession()->getFlashBag()->add(
+    				'errors',
+    				"Пользователь с таким логином уже существует"
+    		);
+    		
+    		return $this->redirectToRoute('loginpage');
+    	} else
+    	{    	
+	    	$user = new User();
+	    	  	
+	
+	    	/* @var $factory \Symfony\Component\Security\Core\Encoder\EncoderFactory */
+	    	$factory = $this->get('security.encoder_factory');    	
+	    	
+			$encoder = $factory->getEncoder($user);
+	
+			$user->
+				setUsername($username)->
+				setPassword($encoder->encodePassword($this->getRequest()->get("_password"), $user->getSalt()))->
+				setName($username);
 			
-			$em->persist($user);
-			$em->flush();
-			 
-			$token = new UsernamePasswordToken($user, null, 'secured_area', $user->getRoles());
-			$this->get('security.token_storage')->setToken($token);			
-		}
-		catch (DBALException $ex)
-		{ 
-			$this->getRequest()->getSession()->getFlashBag()->add(
-				'errors',
-				"Неверные данные регистрации, или такой пользователь уже зарегистрирован"
-			);
-		}		
-    	    	
-    	return $this->redirectToRoute('homepage');
+			try {
+				
+				$em->persist($user);
+				$em->flush();
+				 
+				$token = new UsernamePasswordToken($user, null, 'secured_area', $user->getRoles());
+				$this->get('security.token_storage')->setToken($token);			
+			}
+			catch (DBALException $ex)
+			{ 
+				$this->getRequest()->getSession()->getFlashBag()->add(
+					'errors',
+					"Неверные данные регистрации"
+				);
+			}		
+	    	    	
+	    	return $this->redirectToRoute('homepage');
+    	}
     }
     
    
     /**
-     * @Route("/login", name="login")
+     * @Route("/login", name="loginpage")
      */
     public function loginAction()
     {
