@@ -53,30 +53,24 @@
 
             $('#signin').validate($.extend({
 
-                rules: {
-                    
-                    _username: {
+                rules: {                    
+                    {{signin_login_var}} : {
                         required: true
                     },
-                    _password: {
+					{{signin_pwd_var}}: {
                         required: true
                     }                   
                 },
 
-                messages: {
-                    
-                    _username: {
+                messages: {                    
+                    {{signin_login_var}}: {
                         required: '{{ field_req_msg }}'
                     },
-                    _password: {
+                    {{signin_pwd_var}}: {
                         required: '{{ field_req_msg }}'
-                    }
-                    
-                },
-                    
-                submitHandler: submitHandler
-                    
-                
+                    }                    
+                },                    
+                submitHandler: submitHandler                
             }, shared_settings));
 
             var res = $('#signup').validate($.extend({
@@ -89,7 +83,7 @@
                 
                 messages: {
                     
-                    _password: {
+                    {{signin_pwd_var}}: {
                         minlength: '{{ pwd_len_req_msg }} 5',
                         required: '{{ field_req_msg }}'
                     },
@@ -98,20 +92,20 @@
                         equalTo: '{{ pwd_confirm_req_msg }}'
                     },
                     
-                    _username: {
+                    {{signin_login_var}}: {
                         required: '{{ field_req_msg }}'
                     }
                 },
                 
                 rules: {
 
-                    _username: {
+					{{signin_login_var}}: {
                         required: true
                     },
 
-                    _password: {
+                    {{signin_pwd_var}}: {
                         required: true,                                 
-                        minlength: 1
+                        minlength: {{pwd_len_req}}
                     },
                     password_confirm: {                     
                         equalTo: '#password'

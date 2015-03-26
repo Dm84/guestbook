@@ -151,7 +151,7 @@ class DefaultController extends Controller
     			"pwd_confirm_placeholder" => "Ваш пароль еще раз",
     			"pwd_confirm_req_msg" => "Пароли должны совпадать",
     			"pwd_len_req_msg" => "Длина пароля должна быть не менее:",
-    			
+    			"pwd_len_req" => 6,
     			"field_req_msg" => "Обязательное поле",
     			
     			"signup_header" => "Регистрация",    			
