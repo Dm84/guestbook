@@ -18,6 +18,8 @@ use AppBundle\Entity\Note;
 class DefaultController extends Controller
 {
 	const RES_PATH = '/bundles/app';
+	const NOTE_LIFETIME = 'PT24H';
+	const PWD_LEN_REQ = 6;
 	
     /**
      * @Route("/", name="homepage")
@@ -151,7 +153,7 @@ class DefaultController extends Controller
     			"pwd_confirm_placeholder" => "Ваш пароль еще раз",
     			"pwd_confirm_req_msg" => "Пароли должны совпадать",
     			"pwd_len_req_msg" => "Длина пароля должна быть не менее:",
-    			"pwd_len_req" => 6,
+    			"pwd_len_req" => self::PWD_LEN_REQ,
     			"field_req_msg" => "Обязательное поле",
     			
     			"signup_header" => "Регистрация",    			
@@ -169,14 +171,19 @@ class DefaultController extends Controller
     	/* @var $em \Doctrine\ORM\EntityManager */
 	   	$em = $this->getDoctrine()->getManager();
     	
+		/* @var $qb \Doctrine\ORM\QueryBuilder */
     	$qb = $em->createQueryBuilder();
     	
+		$actualDate = new \DateTime('now');
+		$actualDate->sub(new \DateInterval(self::NOTE_LIFETIME));
+		
     	$qb->
     		select('n.id', 'n.text', 'u.name as username', 'n.userId as user_id')->
     		from('AppBundle\\Entity\\Note', 'n')->
-    		innerJoin('AppBundle\\Entity\\User', 'u', 'WITH', 'u.id = n.userId');
+    		innerJoin('AppBundle\\Entity\\User', 'u', 'WITH', 'u.id = n.userId')->
+			where('n.date > :actual');
     	
-    	$notes = $qb->getQuery()->getArrayResult();    	
+    	$notes = $qb->getQuery()->setParameter('actual', $actualDate)->getArrayResult();    	
     	
     	return new JsonResponse($notes);    	
     }
@@ -217,7 +224,7 @@ class DefaultController extends Controller
     	
     	return new JsonResponse($note);
     }
-    
+	
     /**
      * @Route("/notes", name="post")
      * @Method("POST") 
@@ -233,6 +240,7 @@ class DefaultController extends Controller
     	$arg = $this->getReqObj();
     	
     	$note->setText($arg->text);
+		$note->setDate(new \DateTime('now'));
     	
     	$em->persist($note);
     	$em->flush();   	

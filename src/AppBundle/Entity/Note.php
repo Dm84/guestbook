@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Note
  *
- * @ORM\Table(name="public.note")
+ * @ORM\Table(name="public.note", schema="public")
  * @ORM\Entity
  */
 class Note implements \JsonSerializable
@@ -36,7 +36,21 @@ class Note implements \JsonSerializable
     private $text;
 
 
+	/**
+	 *
+	 * @var int
+	 * @ORM\Column(name="data", type="datetime", nullable=false)
+	 */
+	private $date;
+	
+	public function getDate() {
+		return $this->date;
+	}
 
+	public function setDate($date) {
+		$this->date = $date;
+	}
+			
     /**
      * Get id
      *
