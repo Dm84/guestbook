@@ -13,8 +13,6 @@ define(['jquery', 'marionette'], function ($, Marionette) {
 
 			this.model.bind("request", this.onRequest, this);
 			this.model.bind("sync", this.onSync, this);
-			
-			this.model.fetch();			
 		},
 		
 		onRequest: function () {
