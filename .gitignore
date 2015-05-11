@@ -13,6 +13,9 @@
 /.settings
 .project
 .buildpath
+
+
+#sensitive data
 /app/config/config_prod.yml
 /app/config/parameters.yml
 /app/config/parameters.yml.dist
