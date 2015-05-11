@@ -181,7 +181,8 @@ class DefaultController extends Controller
     		select('n.id', 'n.text', 'u.name as username', 'n.userId as user_id')->
     		from('AppBundle\\Entity\\Note', 'n')->
     		innerJoin('AppBundle\\Entity\\User', 'u', 'WITH', 'u.id = n.userId')->
-			where('n.date > :actual');
+			where('n.date > :actual')->
+			orderBy('n.date', 'desc');
     	
     	$notes = $qb->getQuery()->setParameter('actual', $actualDate)->getArrayResult();    	
     	
